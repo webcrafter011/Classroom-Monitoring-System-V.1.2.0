@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Timetable for {{ selected_date }}
+{% endblock %}
+
+{% block main %}
+<div class="container mt-4">
+    <h3>Timetable for {{ selected_date }}</h3>
+
+    <!-- JavaScript to refresh the page every 10 seconds -->
+    <script>
+        setInterval(function () {
+            window.location.reload();
+        }, 3000);  // Refresh the page every 10 seconds
+    </script>
+
+    <!-- Check if there are any lectures -->
+    {% if lectures %}
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Subject Name</th>
+                    <th>Lecture Time</th>
+                    <th>Teacher's Name</th>
+                    <th>Teacher's Email</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lecture in lectures %}
+                <tr>
+                    <td>{{ lecture.subject_name }}</td>
+                    <td>{{ lecture.lecture_time }}</td>
+                    <td>{{ lecture.teacher_name }}</td>
+                    <td>{{ lecture.teacher_email }}</td>
+                    <td>
+                        {% if lecture.lecture_status == 'Confirmed' %}
+                        <span class="badge bg-success">Confirmed</span>
+                        {% elif lecture.lecture_status == 'Canceled' %}
+                        <span class="badge bg-danger">Canceled</span>
+                        {% else %}
+                        <span class="badge bg-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if lecture.lecture_status == 'Pending' %}
+                        <a href="{{ url_for('confirm_lecture', lecture_id=lecture.id) }}"
+                            class="btn btn-success btn-sm">Confirm</a>
+                        <a href="{{ url_for('cancel_lecture', lecture_id=lecture.id) }}"
+                            class="btn btn-danger btn-sm">Cancel</a>
+                        {% else %}
+                        <span class="text-muted">No further actions</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="alert alert-warning">No lectures found for this date.</p>
+    {% endif %}
+
+    <form action="/clear_timetable" method="post" style="display: inline;">
+        <button type="submit" class="btn btn-danger">Clear Timetable</button>
+    </form>
+</div>
+{% endblock %}

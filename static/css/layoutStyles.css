@@ -1,0 +1,63 @@
+.text-decoration-none {
+    text-decoration: none;
+    color: black;
+    /* Remove underline from anchor tags */
+}
+
+.row {
+    justify-content: center;
+    /* Center the cards horizontally */
+}
+
+nav {
+    background-color: #E5D9F2 !important;
+}
+
+footer {
+    margin-top: 10px;
+    color: black !important;
+    width: 100%;
+    background-color: #CDC1FF;
+    /* Adjust background color as needed */
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+    /* Optional: adds a shadow effect */
+}
+
+.btn {
+    background-color: #A594F9 !important;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.card-body {
+    flex-grow: 1;
+    /* This makes the body of the card expand to fill available space */
+}
+
+@media only screen and (max-width: 720px) {
+    .navbar-nav .nav-link {
+        font-size: 14px;
+    }
+
+    .navbar-brand img {
+        height: 50px;
+        /* Adjust logo size */
+    }
+
+    .card img {
+        height: auto;
+        width: 100%;
+        /* Make images responsive */
+    }
+
+    footer {
+        font-size: 14px;
+        padding: 8px;
+    }
+}

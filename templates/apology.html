@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Apology
+{% endblock %}
+
+{% block main %}
+<div class="container d-flex justify-content-center align-items-center mt-5" style="min-height: 73vh;">
+    <!-- https://memegen.link/ -->
+    <img alt="{{ top }}" class="border img-fluid"
+        src="http://memegen.link/custom/{{ top | urlencode }}/{{ bottom | urlencode }}.jpg?background=https://media.tenor.com/7QQsc2OpYHYAAAAi/not-stonks.gif&width=800"
+        title="{{ top }}">
+</div>
+{% endblock %}

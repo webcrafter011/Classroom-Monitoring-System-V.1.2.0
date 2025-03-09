@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Lecture Canceled
+{% endblock %}
+
+{% block main %}
+<div class="container mt-5">
+    {% if not show_alt_form %}
+    <!-- Cancellation Reason Form -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-danger text-white">
+            <h2 class="h4 mb-0">Cancel Lecture</h2>
+        </div>
+        <div class="card-body">
+            <form action="" method="POST">
+                <input type="hidden" name="reason_form" value="true">
+                <div class="form-group mb-4">
+                    <label for="reason" class="form-label">Reason for Cancellation (Optional)</label>
+                    <textarea class="form-control" id="reason" name="reason" rows="3" 
+                        placeholder="Please provide a reason for canceling the lecture (optional)"></textarea>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-danger px-4">Confirm Cancellation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <!-- Status Alert -->
+    <div class="alert alert-danger text-center mb-5">
+        <h4 class="alert-heading mb-3">Lecture Canceled!</h4>
+        <p class="mb-3">Your lecture has been successfully canceled. Thank you for your response!</p>
+        <hr>
+        <a href="/" class="btn btn-outline-danger">Return to Home</a>
+    </div>
+
+    <!-- Alternative Lecture Form -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h2 class="h4 mb-0">Add an Alternative Lecture</h2>
+        </div>
+        <div class="card-body">
+            <form action="" method="POST">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="subject_name" class="form-label">Subject Name</label>
+                            <input type="text" class="form-control" id="subject_name" name="subject_name" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="lecture_time" class="form-label">Lecture Time</label>
+                            <input type="time" class="form-control" id="lecture_time" name="lecture_time" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="teacher_name" class="form-label">Teacher Name</label>
+                            <input type="text" class="form-control" id="teacher_name" name="teacher_name" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="teacher_email" class="form-label">Teacher Email</label>
+                            <input type="email" class="form-control" id="teacher_email" name="teacher_email" required>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group mb-4">
+                            <label for="lecture_date" class="form-label">Lecture Date</label>
+                            <input type="date" class="form-control" id="lecture_date" name="lecture_date" required>
+                        </div>
+                    </div>
+                    <div class="col-12 text-center">
+                        <button type="submit" class="btn btn-primary px-4">Add Alternative Lecture</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

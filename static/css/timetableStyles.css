@@ -1,0 +1,67 @@
+html,
+body {
+    height: 100%;
+    /* Make sure html and body take full height */
+    margin: 0;
+    /* Remove default margin */
+}
+
+body {
+    display: flex;
+    /* Use flexbox layout */
+    flex-direction: column;
+    /* Stack elements vertically */
+}
+
+.main {
+    flex: 1;
+    /* Allow the main content to grow and fill available space */
+}
+
+nav {
+    background-color: #E5D9F2 !important;
+}
+
+footer {
+    margin-top: 10px;
+    /* Space between main content and footer */
+    color: black !important;
+    width: 100%;
+    background-color: #CDC1FF;
+    /* Background color */
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+    /* Optional shadow effect */
+}
+
+.btn {
+    background-color: #A594F9 !important;
+}
+
+.card-body {
+    flex-grow: 1;
+    /* This makes the body of the card expand to fill available space */
+}
+
+@media only screen and (max-width: 720px) {
+    .navbar-nav .nav-link {
+        font-size: 14px;
+    }
+
+    .navbar-brand img {
+        height: 50px;
+        /* Adjust logo size */
+    }
+
+    .card img {
+        height: auto;
+        width: 100%;
+        /* Make images responsive */
+    }
+
+    footer {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
