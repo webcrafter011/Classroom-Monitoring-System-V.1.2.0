@@ -8,7 +8,7 @@ from helper import apology
 from functools import wraps
 from flask_mail import Mail, Message
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask_ngrok import run_with_ngrok  # Import Ngrok
+from flask_ngrok import run_with_ngrok
 
 app = Flask(__name__)
 run_with_ngrok(app)  # Enable ngrok for Flask app
@@ -23,7 +23,7 @@ app.config["MAIL_USE_SSL"] = True
 
 # Configure the current URL of your app to send emails and trigger responses
 app.config["BASE_URL"] = (
-    "https://b854-103-201-136-13.ngrok-free.app"  # Replace with your actual base URL
+    "https://1dc3-103-201-136-23.ngrok-free.app"  # Replace with your actual base URL
 )
 
 mail = Mail(app)
@@ -63,6 +63,7 @@ try:
 except:
     pass  # Column might already exist
 
+
 # Login required decorator
 def login_required(f):
     @wraps(f)
@@ -101,7 +102,7 @@ def send_email(teacher_email, teacher_name, subject_name, lecture_time, lecture_
         Thank you!
         """
         mail.send(msg)
-        print(f"Email sent to {teacher_email} at {datetime.now()}") 
+        print(f"Email sent to {teacher_email} at {datetime.now()}")
 
 
 # Function to send emails to all teachers at their respective times
@@ -257,24 +258,30 @@ def cancel_lecture(lecture_id):
         if "reason_form" in request.form:
             # Handle the cancellation reason submission
             cancellation_reason = request.form.get("reason", "")
-            
+
             # Update the lecture status to 'Canceled' and store the reason
             db.execute(
                 "UPDATE timetable SET lecture_status = 'Canceled', cancellation_reason = ? WHERE id = ?",
                 cancellation_reason,
-                lecture_id
+                lecture_id,
             )
             flash("Lecture canceled successfully!")
             # After storing the reason, show the alternative lecture form
-            return render_template("status_canceled.html", css_file="css/layoutStyles.css", show_alt_form=True)
-        
+            return render_template(
+                "status_canceled.html",
+                css_file="css/layoutStyles.css",
+                show_alt_form=True,
+            )
+
         else:
             # Handle the alternative lecture form submission
             subject_name = request.form.get("subject_name")
             lecture_time = request.form.get("lecture_time")
             teacher_name = request.form.get("teacher_name")
             teacher_email = request.form.get("teacher_email")
-            lecture_date = request.form.get("lecture_date") or date.today().strftime("%Y-%m-%d")
+            lecture_date = request.form.get("lecture_date") or date.today().strftime(
+                "%Y-%m-%d"
+            )
 
             # Insert the alternative lecture into the timetable
             db.execute(
@@ -294,43 +301,38 @@ def cancel_lecture(lecture_id):
 
     else:
         # Show the initial cancellation reason form
-        return render_template("status_canceled.html", css_file="css/layoutStyles.css", show_alt_form=False)
+        return render_template(
+            "status_canceled.html", css_file="css/layoutStyles.css", show_alt_form=False
+        )
 
 
 @app.route("/get_latest_lecture_status")
 def get_latest_lecture_status():
-    # Get today's date
     current_date = date.today().strftime("%Y-%m-%d")
-
-    # Fetch the latest lecture status for today
     latest_lecture = db.execute(
         "SELECT subject_name, lecture_time, teacher_name, lecture_status, cancellation_reason "
-        "FROM timetable WHERE lecture_date = ? ORDER BY lecture_time DESC LIMIT 1", 
-        current_date
+        "FROM timetable WHERE lecture_date = ? ORDER BY lecture_time DESC LIMIT 1",
+        current_date,
     )
 
-    # If there's a lecture, return its status; otherwise, return a default message
     if latest_lecture:
-        latest_lecture = latest_lecture[0]  # Get the first result
-        # Set default reason if lecture is canceled but no reason provided
-        reason = (
-            latest_lecture.get('cancellation_reason') or "No specific reason provided"
-            if latest_lecture['lecture_status'] == 'Canceled'
-            else ''
-        )
-        return jsonify({
-            'status': latest_lecture['lecture_status'],
-            'subject': latest_lecture['subject_name'],
-            'time': latest_lecture['lecture_time'],
-            'reason': reason
-        })
+        lecture = latest_lecture[0]
+        teacher = lecture["teacher_name"]
+        subject = lecture["subject_name"]
+        lecture_time = lecture["lecture_time"]
+        status = lecture["lecture_status"]
+
+        # Build the display message in the required format
+        display_message = f"{teacher}: {subject}: {lecture_time}: {status}"
+
+        # Append cancellation reason if lecture is canceled
+        if status == "Canceled":
+            reason = lecture.get("cancellation_reason") or "No specific reason provided"
+            display_message += f": {reason}"
+
+        return jsonify({"display_message": display_message})
     else:
-        return jsonify({
-            'status': 'No lectures scheduled',
-            'subject': '',
-            'time': '',
-            'reason': ''
-        })
+        return jsonify({"display_message": "No lectures scheduled"})
 
 
 @app.route("/api/timetable_status")
@@ -355,6 +357,5 @@ def api_timetable_status():
 
 
 if __name__ == "__main__":
-    app.config['DEBUG'] = True  # Enable debug mode
+    app.config["DEBUG"] = True  # Enable debug mode
     app.run()
-
