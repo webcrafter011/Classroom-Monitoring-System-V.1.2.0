@@ -65,3 +65,216 @@ footer {
         padding: 8px;
     }
 }
+
+/* Global Styles */
+:root {
+    --primary-color: #4A90E2;
+    --secondary-color: #F5F7FA;
+    --success-color: #2ECC71;
+    --warning-color: #F1C40F;
+    --danger-color: #E74C3C;
+    --text-primary: #2C3E50;
+    --text-secondary: #7F8C8D;
+    --border-radius: 8px;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Table Styles */
+.table-responsive {
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    background: white;
+    margin: 20px 0;
+}
+
+.timetable-view, .timetable-grid {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    background: white;
+}
+
+.timetable-view th, .timetable-grid th {
+    background: var(--secondary-color);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 15px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.timetable-view td, .timetable-grid td {
+    border: 1px solid #e9ecef;
+    padding: 15px;
+    transition: var(--transition);
+}
+
+/* Cell Styles */
+.timetable-cell {
+    position: relative;
+    min-height: 150px;
+    background: white;
+    transition: var(--transition);
+}
+
+.timetable-cell:hover {
+    background: var(--secondary-color);
+    transform: scale(1.02);
+    z-index: 1;
+    box-shadow: var(--shadow-sm);
+}
+
+.lecture-info {
+    padding: 12px;
+    border-radius: var(--border-radius);
+    background: white;
+    box-shadow: var(--shadow-sm);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lecture-info strong {
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.lecture-details {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 8px 0;
+}
+
+.empty-cell {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    padding: 20px;
+    background: var(--secondary-color);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.empty-cell:hover {
+    background: #e9ecef;
+    cursor: pointer;
+}
+
+/* Status Badges */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.bg-success {
+    background-color: var(--success-color) !important;
+}
+
+.bg-warning {
+    background-color: var(--warning-color) !important;
+}
+
+.bg-danger {
+    background-color: var(--danger-color) !important;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.action-buttons .btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+/* Modal Styles */
+.modal-content {
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+}
+
+.modal-header {
+    background: var(--secondary-color);
+    border-bottom: none;
+    padding: 20px;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-control {
+    border-radius: var(--border-radius);
+    padding: 10px 15px;
+    border: 1px solid #e9ecef;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .timetable-view td, .timetable-grid td {
+        padding: 10px;
+    }
+
+    .lecture-info {
+        padding: 8px;
+    }
+
+    .lecture-info strong {
+        font-size: 0.9rem;
+    }
+
+    .lecture-details {
+        font-size: 0.8rem;
+    }
+}
+
+/* Animation Effects */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.lecture-info {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Status Icon Styles */
+.status-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+}
+
+.status-icon .badge {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 1rem;
+}

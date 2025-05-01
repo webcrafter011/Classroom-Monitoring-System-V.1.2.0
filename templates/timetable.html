@@ -6,52 +6,66 @@ Weekly Timetable
 
 {% block main %}
 <div class="container-fluid mt-4">
-    <h2 class="text-center mb-4">Weekly Timetable</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary mb-0">Edit Weekly Timetable</h2>
+        <div class="d-flex gap-2">
+            <a href="/display_timetable" class="btn btn-outline-primary">
+                <i class="fas fa-eye"></i> View Full Timetable
+            </a>
+        </div>
+    </div>
     
     <!-- Timetable Grid -->
     <div class="table-responsive">
-        <table class="table table-bordered timetable-grid">
+        <table class="table timetable-grid">
             <thead>
                 <tr>
-                    <th>Time Slot</th>
-                    <th>Monday</th>
-                    <th>Tuesday</th>
-                    <th>Wednesday</th>
-                    <th>Thursday</th>
-                    <th>Friday</th>
-                    <th>Saturday</th>
+                    <th class="text-center" style="width: 100px;">Time Slot</th>
+                    <th class="text-center">Monday</th>
+                    <th class="text-center">Tuesday</th>
+                    <th class="text-center">Wednesday</th>
+                    <th class="text-center">Thursday</th>
+                    <th class="text-center">Friday</th>
+                    <th class="text-center">Saturday</th>
                 </tr>
             </thead>
             <tbody>
                 {% for slot in range(1, 8) %}
                 <tr>
-                    <td>Slot {{ slot }}</td>
+                    <td class="text-center fw-bold">Slot {{ slot }}</td>
                     {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] %}
                     <td class="timetable-cell" data-day="{{ day }}" data-slot="{{ slot }}" onclick="openLectureForm('{{ day }}', '{{ slot }}')">
                         {% if timetable.get((day, slot|string)) %}
                         {% set lecture = timetable.get((day, slot|string)) %}
                         <div class="lecture-info">
-                            <strong>{{ lecture.subject_name }}</strong><br>
-                            {{ lecture.teacher_name }}<br>
-                            <div class="lecture-details">
-                                <span class="lecture-date" data-date="{{ lecture.lecture_date }}">
-                                    {{ lecture.lecture_date }}
-                                </span><br>
-                                <span class="lecture-time" data-time="{{ lecture.lecture_time }}">
-                                    {{ lecture.lecture_time }}
-                                </span>
+                            <div class="status-icon">
+                                {% if lecture.lecture_status == 'Confirmed' %}
+                                <span class="badge bg-success" title="Confirmed">✓</span>
+                                {% elif lecture.lecture_status == 'Canceled' %}
+                                <span class="badge bg-danger" title="Canceled">✗</span>
+                                {% else %}
+                                <span class="badge bg-warning" title="Pending">?</span>
+                                {% endif %}
                             </div>
-                            {% if lecture.lecture_status == 'Confirmed' %}
-                            <span class="badge bg-success">✓</span>
-                            {% elif lecture.lecture_status == 'Canceled' %}
-                            <span class="badge bg-danger">✗</span>
-                            {% else %}
-                            <span class="badge bg-warning">?</span>
-                            {% endif %}
+                            <div class="lecture-content">
+                                <strong class="subject-name">{{ lecture.subject_name }}</strong>
+                                <div class="teacher-info">
+                                    <i class="fas fa-user-tie"></i> {{ lecture.teacher_name }}
+                                </div>
+                                <div class="lecture-schedule">
+                                    <div class="lecture-date" data-date="{{ lecture.lecture_date }}">
+                                        <i class="fas fa-calendar"></i> {{ lecture.lecture_date }}
+                                    </div>
+                                    <div class="lecture-time" data-time="{{ lecture.lecture_time }}">
+                                        <i class="fas fa-clock"></i> {{ lecture.lecture_time }}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         {% else %}
                         <div class="empty-cell">
-                            Click to add lecture
+                            <i class="fas fa-plus-circle"></i>
+                            <span class="ms-2">Add Lecture</span>
                         </div>
                         {% endif %}
                     </td>
@@ -62,17 +76,14 @@ Weekly Timetable
         </table>
     </div>
 
-    <!-- Display Timetable Button -->
-    <div class="text-center mt-4">
-        <a href="/display_timetable" class="btn btn-primary">Display Full Timetable</a>
-    </div>
-
     <!-- Lecture Form Modal -->
     <div class="modal fade" id="lectureFormModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add/Edit Lecture</h5>
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit"></i> Add/Edit Lecture
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -81,37 +92,57 @@ Weekly Timetable
                         <input type="hidden" id="timeSlot" name="time_slot">
                         
                         <div class="mb-3">
-                            <label for="subjectName" class="form-label">Subject Name</label>
+                            <label for="subjectName" class="form-label">
+                                <i class="fas fa-book"></i> Subject Name
+                            </label>
                             <input type="text" class="form-control" id="subjectName" name="subject_name" required>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="lectureDate" class="form-label">Lecture Date</label>
+                            <label for="lectureDate" class="form-label">
+                                <i class="fas fa-calendar"></i> Lecture Date
+                            </label>
                             <input type="date" class="form-control" id="lectureDate" name="lecture_date" required>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="lectureTime" class="form-label">Lecture Time</label>
+                            <label for="lectureTime" class="form-label">
+                                <i class="fas fa-clock"></i> Lecture Time
+                            </label>
                             <input type="time" class="form-control" id="lectureTime" name="lecture_time" required>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="teacherName" class="form-label">Teacher's Name</label>
+                            <label for="teacherName" class="form-label">
+                                <i class="fas fa-user-tie"></i> Teacher's Name
+                            </label>
                             <input type="text" class="form-control" id="teacherName" name="teacher_name" required>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="teacherEmail" class="form-label">Teacher's Email</label>
+                            <label for="teacherEmail" class="form-label">
+                                <i class="fas fa-envelope"></i> Teacher's Email
+                            </label>
                             <input type="email" class="form-control" id="teacherEmail" name="teacher_email" required>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary">Save Lecture</button>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Lecture
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <script>
 function openLectureForm(day, slot) {
@@ -129,11 +160,10 @@ function openLectureForm(day, slot) {
     
     if (lectureInfo) {
         // Pre-fill form with existing data
-        document.getElementById('subjectName').value = lectureInfo.querySelector('strong').textContent;
-        const teacherName = lectureInfo.textContent.split('\n')[1].trim();
-        document.getElementById('teacherName').value = teacherName;
+        document.getElementById('subjectName').value = lectureInfo.querySelector('.subject-name').textContent.trim();
+        document.getElementById('teacherName').value = lectureInfo.querySelector('.teacher-info').textContent.trim();
         
-        // Get date and time from the lecture details
+        // Get date and time
         const dateSpan = lectureInfo.querySelector('.lecture-date');
         const timeSpan = lectureInfo.querySelector('.lecture-time');
         
@@ -143,8 +173,6 @@ function openLectureForm(day, slot) {
         if (timeSpan) {
             document.getElementById('lectureTime').value = timeSpan.dataset.time;
         }
-        
-        console.log('Pre-filled form with existing data');
     } else {
         // Clear form for new lecture
         document.getElementById('lectureForm').reset();
@@ -158,15 +186,14 @@ function openLectureForm(day, slot) {
         }
         // Set default date as today
         document.getElementById('lectureDate').value = today;
-        console.log('Cleared form for new entry');
     }
     
-    // Show modal
-    new bootstrap.Modal(document.getElementById('lectureFormModal')).show();
+    // Show modal with animation
+    const modal = new bootstrap.Modal(document.getElementById('lectureFormModal'));
+    modal.show();
 }
 
 function getDefaultTimeForSlot(slot) {
-    // You can customize these default times based on your schedule
     const defaultTimes = {
         '1': '09:00',
         '2': '10:00',
@@ -183,17 +210,10 @@ function validateForm() {
     const form = document.getElementById('lectureForm');
     const formData = new FormData(form);
     
-    // Log form data before submission
-    console.log('Submitting form data:');
-    for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-    }
-    
     // Validate required fields
     if (!formData.get('day_of_week') || !formData.get('time_slot') || 
         !formData.get('lecture_time') || !formData.get('lecture_date')) {
-        console.error('Missing required fields!');
-        alert('Error: Please fill in all required fields.');
+        showError('Please fill in all required fields.');
         return false;
     }
     
@@ -203,12 +223,28 @@ function validateForm() {
     today.setHours(0, 0, 0, 0);
     
     if (selectedDate < today) {
-        console.error('Date is in the past!');
-        alert('Error: Please select a future date.');
+        showError('Please select a future date.');
         return false;
     }
     
     return true;
+}
+
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+    errorDiv.innerHTML = `
+        <i class="fas fa-exclamation-circle"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const form = document.getElementById('lectureForm');
+    form.insertBefore(errorDiv, form.firstChild);
+    
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 5000);
 }
 
 // Add event listener for form submission
@@ -220,40 +256,44 @@ document.getElementById('lectureForm').addEventListener('submit', function(e) {
 </script>
 
 <style>
-.timetable-grid td {
-    position: relative;
-    height: 120px;
-    width: 14.28%;
-    vertical-align: middle;
-    cursor: pointer;
+/* Additional styles specific to edit timetable */
+.modal-content {
+    border: none;
+    box-shadow: var(--shadow-md);
 }
 
-.timetable-cell:hover {
-    background-color: #f8f9fa;
+.form-label {
+    color: var(--text-primary);
+    font-weight: 500;
 }
 
-.lecture-info {
-    text-align: center;
-    font-size: 0.9em;
-    padding: 5px;
+.form-label i {
+    width: 20px;
+    color: var(--primary-color);
 }
 
-.lecture-details {
-    font-size: 0.8em;
-    color: #666;
-    margin: 5px 0;
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
 }
 
-.empty-cell {
-    color: #6c757d;
-    text-align: center;
-    font-size: 0.8em;
+.alert {
+    border: none;
+    border-radius: var(--border-radius);
 }
 
-.badge {
-    position: absolute;
-    top: 5px;
-    right: 5px;
+.alert i {
+    margin-right: 8px;
+}
+
+/* Empty cell hover effect */
+.empty-cell:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.empty-cell:hover i {
+    color: white;
 }
 </style>
 {% endblock %}

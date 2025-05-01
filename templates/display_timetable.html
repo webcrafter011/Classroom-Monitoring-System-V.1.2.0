@@ -6,25 +6,35 @@ Weekly Timetable View
 
 {% block main %}
 <div class="container-fluid mt-4">
-    <h2 class="text-center mb-4">Weekly Timetable View</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary mb-0">Weekly Timetable View</h2>
+        <div class="d-flex gap-2">
+            <a href="/timetable" class="btn btn-outline-primary">
+                <i class="fas fa-edit"></i> Edit Timetable
+            </a>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#resetConfirmModal">
+                <i class="fas fa-trash-alt"></i> Reset Timetable
+            </button>
+        </div>
+    </div>
 
     <div class="table-responsive">
-        <table class="table table-bordered timetable-view">
+        <table class="table timetable-view">
             <thead>
                 <tr>
-                    <th>Time Slot</th>
-                    <th>Monday</th>
-                    <th>Tuesday</th>
-                    <th>Wednesday</th>
-                    <th>Thursday</th>
-                    <th>Friday</th>
-                    <th>Saturday</th>
+                    <th class="text-center" style="width: 100px;">Time Slot</th>
+                    <th class="text-center">Monday</th>
+                    <th class="text-center">Tuesday</th>
+                    <th class="text-center">Wednesday</th>
+                    <th class="text-center">Thursday</th>
+                    <th class="text-center">Friday</th>
+                    <th class="text-center">Saturday</th>
                 </tr>
             </thead>
             <tbody>
                 {% for slot in range(1, 8) %}
                 <tr>
-                    <td>Slot {{ slot }}</td>
+                    <td class="text-center fw-bold">Slot {{ slot }}</td>
                     {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] %}
                     <td class="timetable-cell">
                         {% if timetable.get((day, slot|string)) %}
@@ -39,25 +49,40 @@ Weekly Timetable View
                                 <span class="badge bg-warning" title="Pending">?</span>
                                 {% endif %}
                             </div>
-                            <strong>{{ lecture.subject_name }}</strong><br>
-                            {{ lecture.teacher_name }}<br>
-                            <small>{{ lecture.teacher_email }}</small><br>
-                            <span class="lecture-date" data-date="{{ lecture.lecture_date }}">
-                                Date: {{ lecture.lecture_date }}
-                            </span><br>
-                            <span class="lecture-time" data-time="{{ lecture.lecture_time }}">
-                                Time: {{ lecture.lecture_time }}
-                            </span>
-                            {% if lecture.lecture_status == 'Pending' %}
-                            <div class="action-buttons mt-2">
-                                <a href="{{ url_for('confirm_lecture', lecture_id=lecture.id) }}" class="btn btn-success btn-sm">Confirm</a>
-                                <a href="{{ url_for('cancel_lecture', lecture_id=lecture.id) }}" class="btn btn-danger btn-sm">Cancel</a>
+                            <div class="lecture-content">
+                                <strong class="subject-name">{{ lecture.subject_name }}</strong>
+                                <div class="teacher-info">
+                                    <i class="fas fa-user-tie"></i> {{ lecture.teacher_name }}
+                                </div>
+                                <div class="teacher-email">
+                                    <i class="fas fa-envelope"></i> {{ lecture.teacher_email }}
+                                </div>
+                                <div class="lecture-schedule">
+                                    <div class="lecture-date" data-date="{{ lecture.lecture_date }}">
+                                        <i class="fas fa-calendar"></i> {{ lecture.lecture_date }}
+                                    </div>
+                                    <div class="lecture-time" data-time="{{ lecture.lecture_time }}">
+                                        <i class="fas fa-clock"></i> {{ lecture.lecture_time }}
+                                    </div>
+                                </div>
+                                {% if lecture.lecture_status == 'Pending' %}
+                                <div class="action-buttons">
+                                    <a href="{{ url_for('confirm_lecture', lecture_id=lecture.id) }}" 
+                                       class="btn btn-success btn-sm">
+                                        <i class="fas fa-check"></i> Confirm
+                                    </a>
+                                    <a href="{{ url_for('cancel_lecture', lecture_id=lecture.id) }}" 
+                                       class="btn btn-danger btn-sm">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                </div>
+                                {% endif %}
                             </div>
-                            {% endif %}
                         </div>
                         {% else %}
                         <div class="empty-cell">
-                            No lecture scheduled
+                            <i class="fas fa-calendar-plus"></i>
+                            <span class="ms-2">No lecture scheduled</span>
                         </div>
                         {% endif %}
                     </td>
@@ -67,13 +92,6 @@ Weekly Timetable View
             </tbody>
         </table>
     </div>
-
-    <div class="text-center mt-4">
-        <a href="/timetable" class="btn btn-primary">Edit Timetable</a>
-        <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#resetConfirmModal">
-            Reset Timetable
-        </button>
-    </div>
 </div>
 
 <!-- Reset Confirmation Modal -->
@@ -81,7 +99,9 @@ Weekly Timetable View
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="resetConfirmModalLabel">Confirm Reset</h5>
+                <h5 class="modal-title" id="resetConfirmModalLabel">
+                    <i class="fas fa-exclamation-triangle text-danger"></i> Confirm Reset
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -90,81 +110,67 @@ Weekly Timetable View
                     Warning: This action cannot be undone!
                 </div>
                 <p>Are you sure you want to reset the entire timetable? This will:</p>
-                <ul>
-                    <li>Delete all scheduled lectures</li>
-                    <li>Cancel all pending email notifications</li>
-                    <li>Clear all lecture statuses</li>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-trash text-danger me-2"></i>Delete all scheduled lectures</li>
+                    <li><i class="fas fa-bell-slash text-danger me-2"></i>Cancel all pending email notifications</li>
+                    <li><i class="fas fa-history text-danger me-2"></i>Clear all lecture statuses</li>
                 </ul>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
                 <form action="/reset_timetable" method="POST" style="display: inline;">
-                    <button type="submit" class="btn btn-danger">Reset Timetable</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Reset Timetable
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 <style>
-.timetable-view td {
-    height: 150px;
-    width: 14.28%;
-    vertical-align: middle;
+/* Additional styles specific to display timetable */
+.lecture-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.lecture-info {
-    text-align: center;
-    font-size: 0.9em;
-    padding: 10px;
+.subject-name {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.teacher-info, .teacher-email, .lecture-schedule {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.teacher-info i, .teacher-email i, .lecture-schedule i {
+    width: 16px;
+    color: var(--primary-color);
+}
+
+.lecture-schedule {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
 }
 
 .empty-cell {
-    color: #6c757d;
-    text-align: center;
-    font-size: 0.8em;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
 }
 
-.status-icon {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-}
-
-.badge {
-    font-size: 1em;
-    padding: 5px;
-}
-
-.action-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-}
-
-.action-buttons .btn {
-    padding: 2px 5px;
-    font-size: 0.8em;
-}
-
-/* Add animation for the reset button */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-.btn-danger:hover {
-    animation: pulse 1s infinite;
-}
-
-/* Style for the warning icon */
-.fa-exclamation-triangle {
-    color: #dc3545;
-    margin-right: 5px;
+.empty-cell i {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
 }
 </style>
-
-<!-- Add Font Awesome for icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}
