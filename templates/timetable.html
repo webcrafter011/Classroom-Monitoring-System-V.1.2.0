@@ -1,79 +1,259 @@
 {% extends "layout.html" %}
 
 {% block title %}
-Edit Timetable
+Weekly Timetable
 {% endblock %}
 
 {% block main %}
-<div class="container-fluid d-flex justify-content-center align-items-center full-height mt-2"
-    style="margin-top: 10px;">
-    <div class="row">
-        <!-- Timetable Editing Card -->
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Edit Timetable</h5>
+<div class="container-fluid mt-4">
+    <h2 class="text-center mb-4">Weekly Timetable</h2>
+    
+    <!-- Timetable Grid -->
+    <div class="table-responsive">
+        <table class="table table-bordered timetable-grid">
+            <thead>
+                <tr>
+                    <th>Time Slot</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                    <th>Saturday</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for slot in range(1, 8) %}
+                <tr>
+                    <td>Slot {{ slot }}</td>
+                    {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] %}
+                    <td class="timetable-cell" data-day="{{ day }}" data-slot="{{ slot }}" onclick="openLectureForm('{{ day }}', '{{ slot }}')">
+                        {% if timetable.get((day, slot|string)) %}
+                        {% set lecture = timetable.get((day, slot|string)) %}
+                        <div class="lecture-info">
+                            <strong>{{ lecture.subject_name }}</strong><br>
+                            {{ lecture.teacher_name }}<br>
+                            <div class="lecture-details">
+                                <span class="lecture-date" data-date="{{ lecture.lecture_date }}">
+                                    {{ lecture.lecture_date }}
+                                </span><br>
+                                <span class="lecture-time" data-time="{{ lecture.lecture_time }}">
+                                    {{ lecture.lecture_time }}
+                                </span>
+                            </div>
+                            {% if lecture.lecture_status == 'Confirmed' %}
+                            <span class="badge bg-success">✓</span>
+                            {% elif lecture.lecture_status == 'Canceled' %}
+                            <span class="badge bg-danger">✗</span>
+                            {% else %}
+                            <span class="badge bg-warning">?</span>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="empty-cell">
+                            Click to add lecture
+                        </div>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Display Timetable Button -->
+    <div class="text-center mt-4">
+        <a href="/display_timetable" class="btn btn-primary">Display Full Timetable</a>
+    </div>
+
+    <!-- Lecture Form Modal -->
+    <div class="modal fade" id="lectureFormModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add/Edit Lecture</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="card-body">
-                    <form action="/save_timetable" method="POST">
+                <div class="modal-body">
+                    <form id="lectureForm" action="/save_timetable" method="POST" onsubmit="return validateForm()">
+                        <input type="hidden" id="dayOfWeek" name="day_of_week">
+                        <input type="hidden" id="timeSlot" name="time_slot">
+                        
                         <div class="mb-3">
                             <label for="subjectName" class="form-label">Subject Name</label>
                             <input type="text" class="form-control" id="subjectName" name="subject_name" required>
                         </div>
+                        
                         <div class="mb-3">
-                            <label for="lectureTime" class="form-label">Lecture Timing</label>
+                            <label for="lectureDate" class="form-label">Lecture Date</label>
+                            <input type="date" class="form-control" id="lectureDate" name="lecture_date" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="lectureTime" class="form-label">Lecture Time</label>
                             <input type="time" class="form-control" id="lectureTime" name="lecture_time" required>
                         </div>
+                        
                         <div class="mb-3">
                             <label for="teacherName" class="form-label">Teacher's Name</label>
                             <input type="text" class="form-control" id="teacherName" name="teacher_name" required>
                         </div>
+                        
                         <div class="mb-3">
                             <label for="teacherEmail" class="form-label">Teacher's Email</label>
                             <input type="email" class="form-control" id="teacherEmail" name="teacher_email" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="lectureDate" class="form-label">Lecture Date</label>
-                            <input type="date" class="form-control" id="lectureDate" name="lecture_date"
-                                value="{{ current_date }}" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save Timetable</button>
+                        
+                        <button type="submit" class="btn btn-primary">Save Lecture</button>
                     </form>
                 </div>
             </div>
         </div>
-
-        <!-- Date Picker for Displaying Timetable -->
-        <div class="col-12 mt-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Display Timetable</h5>
-                </div>
-                <div class="card-body">
-                    <form action="/display_timetable" method="GET">
-                        <div class="mb-3">
-                            <label for="selectedDate" class="form-label">Select Date</label>
-                            <input type="date" class="form-control" id="selectedDate" name="date"
-                                value="{{ current_date }}" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Show Timetable</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Clear Timetable Button if more than 4 lectures are scheduled -->
-        {% if show_display_button %}
-        <div class="col-12 mt-4">
-            <form action="/clear_timetable" method="POST">
-                <button type="submit" class="btn btn-danger">Clear Timetable</button>
-            </form>
-        </div>
-        {% endif %}
     </div>
 </div>
 
-<script crossorigin="anonymous"
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function openLectureForm(day, slot) {
+    console.log('Opening form for:', day, slot);
+    document.getElementById('dayOfWeek').value = day;
+    document.getElementById('timeSlot').value = slot;
+    
+    // Set minimum date as today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('lectureDate').min = today;
+    
+    // Get existing lecture data if any
+    const cell = document.querySelector(`[data-day="${day}"][data-slot="${slot}"]`);
+    const lectureInfo = cell.querySelector('.lecture-info');
+    
+    if (lectureInfo) {
+        // Pre-fill form with existing data
+        document.getElementById('subjectName').value = lectureInfo.querySelector('strong').textContent;
+        const teacherName = lectureInfo.textContent.split('\n')[1].trim();
+        document.getElementById('teacherName').value = teacherName;
+        
+        // Get date and time from the lecture details
+        const dateSpan = lectureInfo.querySelector('.lecture-date');
+        const timeSpan = lectureInfo.querySelector('.lecture-time');
+        
+        if (dateSpan) {
+            document.getElementById('lectureDate').value = dateSpan.dataset.date;
+        }
+        if (timeSpan) {
+            document.getElementById('lectureTime').value = timeSpan.dataset.time;
+        }
+        
+        console.log('Pre-filled form with existing data');
+    } else {
+        // Clear form for new lecture
+        document.getElementById('lectureForm').reset();
+        // Reset hidden fields after form reset
+        document.getElementById('dayOfWeek').value = day;
+        document.getElementById('timeSlot').value = slot;
+        // Set default time based on slot
+        const defaultTime = getDefaultTimeForSlot(slot);
+        if (defaultTime) {
+            document.getElementById('lectureTime').value = defaultTime;
+        }
+        // Set default date as today
+        document.getElementById('lectureDate').value = today;
+        console.log('Cleared form for new entry');
+    }
+    
+    // Show modal
+    new bootstrap.Modal(document.getElementById('lectureFormModal')).show();
+}
 
+function getDefaultTimeForSlot(slot) {
+    // You can customize these default times based on your schedule
+    const defaultTimes = {
+        '1': '09:00',
+        '2': '10:00',
+        '3': '11:00',
+        '4': '12:00',
+        '5': '14:00',
+        '6': '15:00',
+        '7': '16:00'
+    };
+    return defaultTimes[slot];
+}
+
+function validateForm() {
+    const form = document.getElementById('lectureForm');
+    const formData = new FormData(form);
+    
+    // Log form data before submission
+    console.log('Submitting form data:');
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+    }
+    
+    // Validate required fields
+    if (!formData.get('day_of_week') || !formData.get('time_slot') || 
+        !formData.get('lecture_time') || !formData.get('lecture_date')) {
+        console.error('Missing required fields!');
+        alert('Error: Please fill in all required fields.');
+        return false;
+    }
+    
+    // Validate that the date is not in the past
+    const selectedDate = new Date(formData.get('lecture_date'));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate < today) {
+        console.error('Date is in the past!');
+        alert('Error: Please select a future date.');
+        return false;
+    }
+    
+    return true;
+}
+
+// Add event listener for form submission
+document.getElementById('lectureForm').addEventListener('submit', function(e) {
+    if (!validateForm()) {
+        e.preventDefault();
+    }
+});
+</script>
+
+<style>
+.timetable-grid td {
+    position: relative;
+    height: 120px;
+    width: 14.28%;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.timetable-cell:hover {
+    background-color: #f8f9fa;
+}
+
+.lecture-info {
+    text-align: center;
+    font-size: 0.9em;
+    padding: 5px;
+}
+
+.lecture-details {
+    font-size: 0.8em;
+    color: #666;
+    margin: 5px 0;
+}
+
+.empty-cell {
+    color: #6c757d;
+    text-align: center;
+    font-size: 0.8em;
+}
+
+.badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+</style>
 {% endblock %}

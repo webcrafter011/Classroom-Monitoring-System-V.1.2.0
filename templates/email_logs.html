@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Email Logs
+{% endblock %}
+
+{% block main %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Email Logs</h2>
+    
+    {% if logs %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Lecture ID</th>
+                    <th>Status</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.created_at }}</td>
+                    <td>{{ log.lecture_id }}</td>
+                    <td>
+                        {% if log.status == 'SUCCESS' %}
+                        <span class="badge bg-success">{{ log.status }}</span>
+                        {% elif log.status == 'FAILED' %}
+                        <span class="badge bg-danger">{{ log.status }}</span>
+                        {% elif log.status == 'SCHEDULED' %}
+                        <span class="badge bg-info">{{ log.status }}</span>
+                        {% else %}
+                        <span class="badge bg-warning">{{ log.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ log.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No email logs found.
+    </div>
+    {% endif %}
+    
+    <div class="text-center mt-4">
+        <a href="/timetable" class="btn btn-primary">Back to Timetable</a>
+    </div>
+</div>
+
+<style>
+.table td {
+    vertical-align: middle;
+}
+.badge {
+    font-size: 0.9em;
+    padding: 0.5em 0.7em;
+}
+</style>
+{% endblock %} 

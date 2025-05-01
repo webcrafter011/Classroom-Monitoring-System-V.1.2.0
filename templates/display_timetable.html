@@ -1,71 +1,170 @@
 {% extends "layout.html" %}
 
 {% block title %}
-Timetable for {{ selected_date }}
+Weekly Timetable View
 {% endblock %}
 
 {% block main %}
-<div class="container mt-4">
-    <h3>Timetable for {{ selected_date }}</h3>
+<div class="container-fluid mt-4">
+    <h2 class="text-center mb-4">Weekly Timetable View</h2>
 
-    <!-- JavaScript to refresh the page every 10 seconds -->
-    <script>
-        setInterval(function () {
-            window.location.reload();
-        }, 3000);  // Refresh the page every 10 seconds
-    </script>
-
-    <!-- Check if there are any lectures -->
-    {% if lectures %}
     <div class="table-responsive">
-        <table class="table table-bordered">
+        <table class="table table-bordered timetable-view">
             <thead>
                 <tr>
-                    <th>Subject Name</th>
-                    <th>Lecture Time</th>
-                    <th>Teacher's Name</th>
-                    <th>Teacher's Email</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>Time Slot</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                    <th>Saturday</th>
                 </tr>
             </thead>
             <tbody>
-                {% for lecture in lectures %}
+                {% for slot in range(1, 8) %}
                 <tr>
-                    <td>{{ lecture.subject_name }}</td>
-                    <td>{{ lecture.lecture_time }}</td>
-                    <td>{{ lecture.teacher_name }}</td>
-                    <td>{{ lecture.teacher_email }}</td>
-                    <td>
-                        {% if lecture.lecture_status == 'Confirmed' %}
-                        <span class="badge bg-success">Confirmed</span>
-                        {% elif lecture.lecture_status == 'Canceled' %}
-                        <span class="badge bg-danger">Canceled</span>
+                    <td>Slot {{ slot }}</td>
+                    {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] %}
+                    <td class="timetable-cell">
+                        {% if timetable.get((day, slot|string)) %}
+                        {% set lecture = timetable.get((day, slot|string)) %}
+                        <div class="lecture-info">
+                            <div class="status-icon">
+                                {% if lecture.lecture_status == 'Confirmed' %}
+                                <span class="badge bg-success" title="Confirmed">✓</span>
+                                {% elif lecture.lecture_status == 'Canceled' %}
+                                <span class="badge bg-danger" title="Canceled">✗</span>
+                                {% else %}
+                                <span class="badge bg-warning" title="Pending">?</span>
+                                {% endif %}
+                            </div>
+                            <strong>{{ lecture.subject_name }}</strong><br>
+                            {{ lecture.teacher_name }}<br>
+                            <small>{{ lecture.teacher_email }}</small><br>
+                            <span class="lecture-date" data-date="{{ lecture.lecture_date }}">
+                                Date: {{ lecture.lecture_date }}
+                            </span><br>
+                            <span class="lecture-time" data-time="{{ lecture.lecture_time }}">
+                                Time: {{ lecture.lecture_time }}
+                            </span>
+                            {% if lecture.lecture_status == 'Pending' %}
+                            <div class="action-buttons mt-2">
+                                <a href="{{ url_for('confirm_lecture', lecture_id=lecture.id) }}" class="btn btn-success btn-sm">Confirm</a>
+                                <a href="{{ url_for('cancel_lecture', lecture_id=lecture.id) }}" class="btn btn-danger btn-sm">Cancel</a>
+                            </div>
+                            {% endif %}
+                        </div>
                         {% else %}
-                        <span class="badge bg-warning">Pending</span>
+                        <div class="empty-cell">
+                            No lecture scheduled
+                        </div>
                         {% endif %}
                     </td>
-                    <td>
-                        {% if lecture.lecture_status == 'Pending' %}
-                        <a href="{{ url_for('confirm_lecture', lecture_id=lecture.id) }}"
-                            class="btn btn-success btn-sm">Confirm</a>
-                        <a href="{{ url_for('cancel_lecture', lecture_id=lecture.id) }}"
-                            class="btn btn-danger btn-sm">Cancel</a>
-                        {% else %}
-                        <span class="text-muted">No further actions</span>
-                        {% endif %}
-                    </td>
+                    {% endfor %}
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-    {% else %}
-    <p class="alert alert-warning">No lectures found for this date.</p>
-    {% endif %}
 
-    <form action="/clear_timetable" method="post" style="display: inline;">
-        <button type="submit" class="btn btn-danger">Clear Timetable</button>
-    </form>
+    <div class="text-center mt-4">
+        <a href="/timetable" class="btn btn-primary">Edit Timetable</a>
+        <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#resetConfirmModal">
+            Reset Timetable
+        </button>
+    </div>
 </div>
+
+<!-- Reset Confirmation Modal -->
+<div class="modal fade" id="resetConfirmModal" tabindex="-1" aria-labelledby="resetConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetConfirmModalLabel">Confirm Reset</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Warning: This action cannot be undone!
+                </div>
+                <p>Are you sure you want to reset the entire timetable? This will:</p>
+                <ul>
+                    <li>Delete all scheduled lectures</li>
+                    <li>Cancel all pending email notifications</li>
+                    <li>Clear all lecture statuses</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="/reset_timetable" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Reset Timetable</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timetable-view td {
+    height: 150px;
+    width: 14.28%;
+    vertical-align: middle;
+}
+
+.lecture-info {
+    text-align: center;
+    font-size: 0.9em;
+    padding: 10px;
+}
+
+.empty-cell {
+    color: #6c757d;
+    text-align: center;
+    font-size: 0.8em;
+}
+
+.status-icon {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.badge {
+    font-size: 1em;
+    padding: 5px;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.action-buttons .btn {
+    padding: 2px 5px;
+    font-size: 0.8em;
+}
+
+/* Add animation for the reset button */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.btn-danger:hover {
+    animation: pulse 1s infinite;
+}
+
+/* Style for the warning icon */
+.fa-exclamation-triangle {
+    color: #dc3545;
+    margin-right: 5px;
+}
+</style>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}
